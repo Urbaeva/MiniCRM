@@ -44,4 +44,22 @@ class TicketService
 
 		return $ticket->load('customer');
 	}
+
+	public function getStatistics(): array
+	{
+		return [
+			'day' => [
+				'total' => $this->ticketRepository->countForPeriod(1),
+				'by_status' => $this->ticketRepository->countByStatusForPeriod(1),
+			],
+			'week' => [
+				'total' => $this->ticketRepository->countForPeriod(7),
+				'by_status' => $this->ticketRepository->countByStatusForPeriod(7),
+			],
+			'month' => [
+				'total' => $this->ticketRepository->countForPeriod(30),
+				'by_status' => $this->ticketRepository->countByStatusForPeriod(30),
+			],
+		];
+	}
 }

@@ -10,4 +10,18 @@ class TicketRepository
 	{
 		return Ticket::query()->create($data);
 	}
+
+	public function countForPeriod(int $days): int
+	{
+		return Ticket::createdLastDays($days)->count();
+	}
+
+	public function countByStatusForPeriod(int $days): int
+	{
+		return Ticket::createdLastDays($days)
+			->selectRaw('status, COUNT(*) as count')
+			->groupBy('status')
+			->pluck('count', 'status')
+			->toArray();
+	}
 }
