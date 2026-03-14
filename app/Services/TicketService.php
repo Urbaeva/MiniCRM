@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Ticket;
 use App\Repositories\TicketRepository;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
@@ -61,5 +62,10 @@ class TicketService
 				'by_status' => $this->ticketRepository->countByStatusForPeriod(30),
 			],
 		];
+	}
+
+	public function getFilteredTickets(array $filters, int $page = 15): LengthAwarePaginator
+	{
+		return $this->ticketRepository->getFiltered($filters, $page);
 	}
 }
