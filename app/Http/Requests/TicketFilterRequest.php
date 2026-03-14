@@ -27,7 +27,7 @@ class TicketFilterRequest extends FormRequest
 		    'status' => ['nullable', Rule::in(['new', 'in_progress', 'resolved'])],
 		    'date_from' => ['nullable', 'date'],
 		    'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
-		    'email' => ['nullable', 'string', 'max:255'],
+		    'email' => ['email', 'nullable', 'string', 'max:255'],
 		    'phone' => ['nullable', 'string', 'max:20'],
 	    ];
     }
