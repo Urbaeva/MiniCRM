@@ -51,4 +51,21 @@ class TicketRepository
 		}
 		return $query->latest()->paginate($perPage);
 	}
+
+	public function findById(int $id): Ticket
+	{
+		return Ticket::query()->with(['customer', 'media'])->findOrFail($id);
+	}
+
+	public function updateStatus(Ticket $ticket, string $status): Ticket
+	{
+		$data = ['status' => $status];
+
+		if (in_array($status, ['in_progress', 'resolved'])) {
+			$data['manager_responded_at'] = now();
+		}
+
+		$ticket->update($data);
+		return $ticket->fresh();
+	}
 }

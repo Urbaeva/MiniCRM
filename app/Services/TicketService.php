@@ -68,4 +68,15 @@ class TicketService
 	{
 		return $this->ticketRepository->getFiltered($filters, $page);
 	}
+
+	public function getTicketById(int $id): Ticket
+	{
+		return $this->ticketRepository->findById($id);
+	}
+
+	public function updateTicketStatus(int $id, string $status): Ticket
+	{
+		$ticket = $this->getTicketById($id);
+		return $this->ticketRepository->updateStatus($ticket, $status);
+	}
 }
