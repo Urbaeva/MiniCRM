@@ -17,7 +17,7 @@ class TicketRepository
 		return Ticket::createdLastDays($days)->count();
 	}
 
-	public function countByStatusForPeriod(int $days): int
+	public function countByStatusForPeriod(int $days): array
 	{
 		return Ticket::createdLastDays($days)
 			->selectRaw('status, COUNT(*) as count')

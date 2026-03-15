@@ -20,6 +20,7 @@ class TicketResource extends JsonResource
 	        'body' => $this->body,
 	        'status' => $this->status,
 	        'manager_responded_at' => $this->manager_responded_at?->toISOString(),
+	        'customer' => $this->whenLoaded('customer'),
         ];
     }
 }
