@@ -1,0 +1,197 @@
+openapi: 3.0.3
+info:
+  title: MiniCRM API
+  description: API для мини-CRM системы обработки заявок
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+
+paths:
+  /tickets:
+    post:
+      summary: Создание новой заявки
+      operationId: storeTicket
+      tags:
+        - Tickets
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - subject
+                - body
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: Иван Иванов
+                email:
+                  type: string
+                  format: email
+                  example: ivan@example.com
+                phone:
+                  type: string
+                  pattern: '^\+[1-9]\d{1,14}$'
+                  description: Формат E.164
+                  example: "+79001234567"
+                subject:
+                  type: string
+                  maxLength: 255
+                  example: Вопрос по услуге
+                body:
+                  type: string
+                  maxLength: 5000
+                  example: Хочу узнать подробности по вашему предложению.
+                files[]:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  maxItems: 5
+                  description: Файлы (макс. 5 шт., каждый до 10 МБ)
+      responses:
+        "201":
+          description: Заявка успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Ticket"
+        "422":
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /tickets/statistics:
+    get:
+      summary: Статистика заявок
+      operationId: ticketStatistics
+      tags:
+        - Tickets
+      responses:
+        "200":
+          description: Статистика за сутки, неделю и месяц
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Statistics"
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Иван Иванов
+        phone:
+          type: string
+          example: "+79001234567"
+        email:
+          type: string
+          example: ivan@example.com
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        subject:
+          type: string
+          example: Вопрос по услуге
+        body:
+          type: string
+          example: Текст заявки
+        status:
+          type: string
+          enum: [new, in_progress, resolved]
+          example: new
+        manager_responded_at:
+          type: string
+          format: date-time
+          nullable: true
+        customer:
+          $ref: "#/components/schemas/Customer"
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/File"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: document.pdf
+        size:
+          type: integer
+          example: 102400
+        url:
+          type: string
+          example: /storage/1/document.pdf
+
+    Statistics:
+      type: object
+      properties:
+        day:
+          $ref: "#/components/schemas/PeriodStats"
+        week:
+          $ref: "#/components/schemas/PeriodStats"
+        month:
+          $ref: "#/components/schemas/PeriodStats"
+
+    PeriodStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 12
+        by_status:
+          type: object
+          properties:
+            new:
+              type: integer
+              example: 5
+            in_progress:
+              type: integer
+              example: 4
+            resolved:
+              type: integer
+              example: 3
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The name field is required.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

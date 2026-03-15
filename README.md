@@ -1,59 +1,133 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MiniCRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
+## Запуск проекта
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Docker 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```bash
+docker-compose up --build
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Приложение будет доступно по адресу: `http://localhost:8000`
 
-## Learning Laravel
+Docker автоматически выполнит:
+- Установку зависимостей Composer
+- Генерацию ключа приложения
+- Создание БД SQLite
+- Запуск миграций и сидеров
+- Создание символической ссылки storage
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Локальный запуск
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# 1. Установить зависимости
+composer install
+npm install
 
-## Laravel Sponsors
+# 2. Скопировать конфиг окружения
+cp .env.example .env
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 3. Сгенерировать ключ
+php artisan key:generate
 
-### Premium Partners
+# 4. Создать файл БД
+touch database/database.sqlite
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 5. Запустить миграции и сидеры
+php artisan migrate --seed
 
-## Contributing
+# 6. Создать символическую ссылку для файлов
+php artisan storage:link
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 7. Запустить сервер
+php artisan serve
+```
 
-## Code of Conduct
+Приложение будет доступно по адресу: `http://localhost:8000`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Тестовые данные
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+После запуска сидеров (`php artisan db:seed`) в системе будут созданы:
 
-## License
+### Менеджер (для входа в админ-панель)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Поле     | Значение              |
+|----------|-----------------------|
+| Email    | `manager@minicrm.test` |
+| Пароль   | `password`             |
+| Роль     | `manager`              |
+
+### Клиенты и тикеты
+
+- **10 клиентов** с рандомными именами, телефонами и email
+- **От 1 до 3 тикетов** на каждого клиента со статусами: `new`, `in_progress`, `resolved`
+
+---
+
+## Встраивание виджета (iframe)
+
+Виджет — самостоятельная HTML-страница без внешних зависимостей, предназначенная для встраивания на сторонние сайты через `<iframe>`.
+
+### Пример встраивания
+
+```html
+<iframe
+  src="http://localhost:8000/widget"
+  style="width: 500px; height: 700px; border: none;"
+></iframe>
+```
+
+### Полный пример HTML-страницы с виджетом
+
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мой сайт</title>
+</head>
+<body>
+    <h1>Свяжитесь с нами</h1>
+    <iframe
+      src="http://localhost:8000/widget"
+      style="width: 500px; height: 700px; border: none;"
+    ></iframe>
+</body>
+</html>
+```
+
+Виджет поддерживает:
+- Поля: Имя*, Email, Телефон, Тема*, Сообщение*
+- Загрузку до 5 файлов (макс. 10 МБ каждый)
+- Валидацию на стороне клиента и сервера
+- Отправку через AJAX (без перезагрузки страницы)
+
+
+## Админ-панель
+
+Доступна по адресу: `http://localhost:8000/admin/tickets`
+
+**Вход:** `http://localhost:8000/login` → используйте тестовые данные менеджера (см. выше).
+
+### Функции
+
+- Просмотр списка тикетов с пагинацией
+- Фильтрация по статусу, дате, email, телефону
+- Просмотр деталей тикета с вложениями
+- Изменение статуса тикета (`new` → `in_progress` → `resolved`)
+
+
+## Тестирование
+
+```bash
+php artisan test
+```
+
+Покрытие тестами:
+- **API:** создание тикета, валидация полей, формат телефона E.164, привязка к существующему клиенту, статистика
+- **Админ-панель:** защита от гостей, доступ менеджера, просмотр списка и деталей, обновление статуса, фильтрация, запрет для не-менеджеров
+
+---
